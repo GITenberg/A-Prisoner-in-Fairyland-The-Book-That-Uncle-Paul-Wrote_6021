@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: BLot15mMMxNWMtipyNIN2vRMgS7b5DcUhrl/50wCFLmbhih3ZDH8cCuIKUuR//6EWvCBib1yU722kFmBXON56ONxPHPfue9YUqJ0mIefv3rPFVgQFhU/IfdGW3zgriTqX0lGjkKoIA+v9QOTnDjlGMbT8fzSusCInMshVAvYF5IVv5Q+gGYTbNyxAfFg5ZwZu5jwjP/dbMianlBacdYVHgX7AxI4Ci2HPEbrOjIXxBs6idyBA6PrGDgGEYr9mqtLVEKWzB6Eubs7JPJ2FyVL65Z/eYdeuC8PDjlpunk/S26CyVwv0+zXMGspjnCLRuXilsmtYsSDT11IA0Frhj9iWl2nBc8lsTuleUcXnqgalu3f6G8WG/pfoTnOvsYzgU+NNQ6NEJ+H+u4jRQcW25f/Y9hXrcWn1LhHZa1X351OkU4FdTrpojkMSp8kUcVmHuUY2QNnrR/6SM6KPX/pteSUpth1SsMNg5ACnryZBxaiJ4YS/JwYjNwOxamTUQHrY2meENpuDHHSX7Jk4LtLEoAdNYN26boKArbneC5FTPtVpGKabz5e0eUCsfmKlMmlAdvy2krgLLxZSQeYnXOgT8MFsCDR8m5RP6blb2+je0Rf6tvZfajXT1yJ2WfGyxuNwGbGjuDg8CHf3bFdK0OP1NaXAZC4MAEFNxE047bRCLaSxaI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/A-Prisoner-in-Fairyland-The-Book-That-Uncle-Paul-Wrote_6021
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
